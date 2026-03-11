@@ -22,5 +22,10 @@ type Storage interface {
 
 	// Operations with ReadingSession
 	AddReadingSession(ctx context.Context, session *model.ReadingSession) error
-	GetReadingSessionsForPeriod(ctx context.Context, userID int64, from time.Time, to time.Time) ([]*model.ReadingSession, error)
+	GetReadingSessionsForPeriod(
+		ctx context.Context,
+		userID int64,
+		from time.Time,
+		to time.Time,
+	) ([]*model.ReadingSession, error)
 }
