@@ -1,1 +1,4 @@
 config/local.yaml
+*.exe
+*.yaml
+*.db
