@@ -3,19 +3,25 @@ package config
 import (
 	"flag"
 	"os"
+	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
-	BDConfig BDConfig `yaml:"bd"`
-	Env      string   `yaml:"env" env-default:"local"`
+	BDConfig    BDConfig          `yaml:"bd"`
+	Env         string            `yaml:"env" env-default:"local"`
+	TGBotConfig TelegramBotConfig `yaml:"tg_bot_config"`
 }
 type BDConfig struct {
 	UserName string `yaml:"user_name"`
 	Password string `yaml:"password"`
 	Port     int    `yaml:"port"`
 	Host     string `yaml:"host"`
+}
+type TelegramBotConfig struct {
+	APIToken string        `yaml:"api_token"`
+	PollTime time.Duration `yaml:"poll_time"`
 }
 
 func MustLoad() *Config {
