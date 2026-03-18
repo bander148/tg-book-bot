@@ -9,15 +9,18 @@ import (
 )
 
 type Config struct {
-	BDConfig    BDConfig          `yaml:"bd"`
+	DBConfig    DBConfig          `yaml:"db"`
 	Env         string            `yaml:"env" env-default:"local"`
 	TGBotConfig TelegramBotConfig `yaml:"tg_bot_config"`
 }
-type BDConfig struct {
-	UserName string `yaml:"user_name"`
-	Password string `yaml:"password"`
-	Port     int    `yaml:"port"`
-	Host     string `yaml:"host"`
+type DBConfig struct {
+	Username      string        `yaml:"username"`
+	Password      string        `yaml:"password"`
+	Port          string        `yaml:"port"`
+	Host          string        `yaml:"host"`
+	Database      string        `yaml:"database"`
+	MaxAttempts   int           `yaml:"max_attempts"`
+	DelayAttempts time.Duration `yaml:"delay_attempts"`
 }
 type TelegramBotConfig struct {
 	APIToken string        `yaml:"api_token"`
