@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"tgBookBot/internal/config"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -22,9 +23,9 @@ type Client interface {
 }
 
 // TODO : передавать структуру бд конфиг, а не по частям
-func NewClient(ctx context.Context, delay time.Duration, maxAttempts int, username, password, host, port, database string, log *slog.Logger) (pool *pgxpool.Pool, err error) {
+func NewClient(ctx context.Context, dbCfg *config.DBConfig, log *slog.Logger) (pool *pgxpool.Pool, err error) {
 
-	dsn := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", username, password, host, port, database)
+	dsn := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", dbCfg.Username, dbCfg.Password, dbCfg.Host, dbCfg.Port, dbCfg.Database)
 
 	err = DoWithTries(func() error {
 		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
@@ -32,11 +33,11 @@ func NewClient(ctx context.Context, delay time.Duration, maxAttempts int, userna
 
 		pool, err = pgxpool.New(ctx, dsn)
 		if err != nil {
-			log.Error("Attempt to connect failed, reconnecting", slog.Int("attempt", maxAttempts), slog.Any("err", err))
+			log.Error("Attempt to connect failed, reconnecting", slog.Int("attempt", dbCfg.MaxAttempts), slog.Any("err", err))
 			return err
 		}
 		return nil
-	}, maxAttempts, delay)
+	}, dbCfg.MaxAttempts, time.Second*dbCfg.DelayAttempts)
 	if err != nil {
 		log.Error("Failed to connect", slog.Any("err", err))
 		return nil, err
