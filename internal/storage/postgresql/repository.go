@@ -27,7 +27,7 @@ func (p *pgRepository) CreateUser(ctx context.Context, telegramID int64, usernam
 	q := `INSERT INTO users (telegram_id,username) VALUES ($1,$2) RETURNING id`
 	if err := p.client.QueryRow(ctx, q, telegramID, username).Scan(&id); err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok {
-			l.Error("can't save user", slog.Any("err", pgErr.Message), slog.Any("deatil", pgErr.Detail), slog.Any("where", pgErr.Where), slog.Any("code", pgErr.Code), slog.Any("sqlstate", pgErr.SQLState()))
+			l.Error("can't save user", slog.Any("err", pgErr.Message), slog.Any("detail", pgErr.Detail), slog.Any("where", pgErr.Where), slog.Any("code", pgErr.Code), slog.Any("sqlstate", pgErr.SQLState()))
 			return 0, err
 		}
 
@@ -63,7 +63,7 @@ func (p *pgRepository) GetUserBooks(ctx context.Context, userID int64) ([]model.
 	rows, err := p.client.Query(ctx, q, userID)
 	if err != nil {
 		l.Error("can't scan row", slog.Any("err", err))
-		return []model.Book{}, nil
+		return []model.Book{}, err
 	}
 
 	books := make([]model.Book, 0)
@@ -74,14 +74,14 @@ func (p *pgRepository) GetUserBooks(ctx context.Context, userID int64) ([]model.
 		err := rows.Scan(&book.ID, &book.UserID, &book.Pages, &book.Description, &book.Author, &book.Title, &book.StartDate, &book.EndDate, &book.PagesRead, &book.CreatedAt, &book.UpdatedAt)
 		if err != nil {
 			l.Error("can't scan row", slog.Any("err", err))
-			return []model.Book{}, nil
+			return []model.Book{}, err
 		}
 		books = append(books, book)
 	}
 
 	if err := rows.Err(); err != nil {
 		l.Error("rows error", slog.Any("err", err))
-		return []model.Book{}, nil
+		return []model.Book{}, err
 	}
 	return books, nil
 

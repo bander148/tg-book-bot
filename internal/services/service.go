@@ -17,19 +17,19 @@ type Service struct {
 func New(log *slog.Logger, storage storage.Storage) *Service {
 	return &Service{log: log, storage: storage}
 }
-func (s *Service) CreateUser(ctx context.Context, telegramID int64, username string) error {
+func (s *Service) CreateUser(ctx context.Context, telegramID int64, username string) (int, error) {
 	// TODO : request validation
 	const op = "Service.CreateUser"
 	l := s.log.With(slog.String("op", op), slog.Int64("telegramID", telegramID))
 	l.Info("attempting to create new user")
 
-	date := time.Now()
-	if err := s.storage.CreateUser(ctx, telegramID, username, date); err != nil {
+	id, err := s.storage.CreateUser(ctx, telegramID, username)
+	if err != nil {
 		l.Error("failed to create user", slog.Any("error", err))
-		return fmt.Errorf("%s:%w", op, err)
+		return 0, fmt.Errorf("%s:%w", op, err)
 	}
-	l.Info("user created")
-	return nil
+	l.Info("user created", slog.Int("id", id))
+	return id, nil
 }
 
 func (s *Service) GetUserByTelegramID(ctx context.Context, telegramID int64) (*model.User, error) {
@@ -52,7 +52,7 @@ func (s *Service) CreateBook(ctx context.Context, book *model.Book) error {
 	panic("implement me")
 }
 
-func (s *Service) GetUserBooks(ctx context.Context, userID int64) ([]*model.Book, error) {
+func (s *Service) GetUserBooks(ctx context.Context, userID int64) ([]model.Book, error) {
 	const op = "Service.GetUserBook"
 	l := s.log.With(slog.String("op", op), slog.Int64("userID", userID))
 	l.Info("attempting to get user books")
@@ -69,7 +69,7 @@ func (s *Service) GetUserBooks(ctx context.Context, userID int64) ([]*model.Book
 func (s *Service) UpdateBookProgress(ctx context.Context, bookID int64, pagesRead int64) error {
 	panic("implement me")
 }
-func (s *Service) MarkBookFinished(ctx context.Context, bookID int64) error {
+func (s *Service) MarkBookFinished(ctx context.Context, bookID int64, date time.Time) error {
 	panic("implement me")
 }
 func (s *Service) DeleteBook(ctx context.Context, bookID int64) error {
