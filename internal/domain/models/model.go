@@ -3,6 +3,7 @@ package model
 import "time"
 
 // Book
+// TODO : Add image url
 type Book struct {
 	ID          int64
 	UserID      int64
@@ -30,9 +31,11 @@ type ReadingSession struct {
 	ID        int64
 	BookID    int64
 	UserID    int64
+	Duration  time.Duration
 	Date      time.Time
 	Pages     int64
 	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // UserStats maybe implement at the end project (Not necessarily)
