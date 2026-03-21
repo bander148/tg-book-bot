@@ -20,8 +20,7 @@ func New(log *slog.Logger, storage storage.Storage) *Service {
 func (s *Service) CreateUser(ctx context.Context, telegramID int64, username string) (int, error) {
 	// TODO : request validation
 	const op = "Service.CreateUser"
-	l := s.log.With(slog.String("op", op), slog.Int64("telegramID", telegramID))
-	l.Info("attempting to create new user")
+	l := s.log.With(slog.String("op", op), slog.Int64("telegram_id", telegramID))
 
 	id, err := s.storage.CreateUser(ctx, telegramID, username)
 	if err != nil {
@@ -36,8 +35,7 @@ func (s *Service) GetUserByTelegramID(ctx context.Context, telegramID int64) (*m
 	// TODO : request validation
 
 	const op = "Service.GetUserByTelegramID"
-	l := s.log.With(slog.String("op", op), slog.Int64("telegramID", telegramID))
-	l.Info("attempting to get user info")
+	l := s.log.With(slog.String("op", op), slog.Int64("telegram_id", telegramID))
 
 	userData, err := s.storage.GetUserByTelegramID(ctx, telegramID)
 	if err != nil {
@@ -45,6 +43,7 @@ func (s *Service) GetUserByTelegramID(ctx context.Context, telegramID int64) (*m
 		return nil, fmt.Errorf("%s:%w", op, err)
 	}
 	// think about where and how to process empty data from the database
+	l.Info("user data getted", slog.Any("username", userData.Username))
 	return userData, nil
 }
 
@@ -54,8 +53,7 @@ func (s *Service) CreateBook(ctx context.Context, book *model.Book) error {
 
 func (s *Service) GetUserBooks(ctx context.Context, userID int64) ([]model.Book, error) {
 	const op = "Service.GetUserBook"
-	l := s.log.With(slog.String("op", op), slog.Int64("userID", userID))
-	l.Info("attempting to get user books")
+	l := s.log.With(slog.String("op", op), slog.Int64("user_id", userID))
 
 	booksData, err := s.storage.GetUserBooks(ctx, userID)
 	if err != nil {
@@ -63,6 +61,7 @@ func (s *Service) GetUserBooks(ctx context.Context, userID int64) ([]model.Book,
 		return nil, fmt.Errorf("%s:%w", op, err)
 	}
 	// think about where and how to process empty data from the database
+	l.Info("user books getted", slog.Int("books_count", len(booksData)))
 	return booksData, nil
 }
 

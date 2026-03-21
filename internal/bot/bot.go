@@ -26,20 +26,18 @@ func New(cfg *config.TelegramBotConfig, service *service.Service, log *slog.Logg
 		service: service,
 		log:     log,
 	}
-	log.Info("Bot created success", slog.Any("token", cfg.APIToken), slog.Any("poll_time", cfg.PollTime))
+	log.Info("Bot created success", slog.Any("poll_time", cfg.PollTime))
 	b.registerHandlers()
 	return b
 }
 
 // Start - запускает бота и начинает обрабатывать входящие сообщения
 func (b *Bot) Start() {
-	b.log.Info("Bot started success")
 	b.engine.Start()
 }
 
 // Stop - останавливает бота и прекращает обработку входящих сообщений , используется для graceful shutdown
 func (b *Bot) Stop() {
-	b.log.Info("Bot stopped")
 	b.engine.Stop()
 }
 
@@ -59,5 +57,8 @@ func CreateEngine(token string, poll time.Duration) *telebot.Bot {
 // registerHandlers - метод для регистрации обработчиков команд и сообщений бота
 func (b *Bot) registerHandlers() {
 	// TODO: register handlers
-	panic("implement me ")
+	b.engine.Handle("/start", b.handleStart)
+	// TODO : add handlers for other commands - /addbook, /mybooks, /deletebook etc.
+	// TODO : add handlers for callback buttons
+	//panic("implement me ")
 }

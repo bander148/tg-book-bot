@@ -41,7 +41,6 @@ func NewClient(ctx context.Context, dbCfg *config.DBConfig, log *slog.Logger) (p
 		log.Error("Failed to connect", slog.Any("err", err))
 		return nil, err
 	}
-	log.Info("connection to database success")
 	return pool, nil
 
 }
