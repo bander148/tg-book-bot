@@ -28,10 +28,13 @@ func main() {
 		return
 	}
 	logger.Info("Database client created successfully")
+
 	repo := postgresql.NewRepository(client, logger)
 	logger.Info("Repository created successfully")
+
 	service := service.New(logger, repo)
 	logger.Info("Service created successfully")
+
 	b := bot.New(&cfg.TGBotConfig, service, logger)
 	logger.Info("Bot created successfully")
 	//b.engine.Handle("/health", func(c telebot.Context) error {
@@ -39,9 +42,11 @@ func main() {
 	//})
 	go b.Start()
 	logger.Info("Bot started success")
+
 	osSignals := make(chan os.Signal, 1)
 	signal.Notify(osSignals, syscall.SIGTERM, syscall.SIGINT)
 	stopSignal := <-osSignals
+
 	b.Stop()
 	logger.Info("Bot graceful stopped", slog.String("signal", stopSignal.String()))
 }
