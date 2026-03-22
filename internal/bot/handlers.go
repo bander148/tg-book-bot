@@ -3,6 +3,7 @@ package bot
 import (
 	"context"
 	"log/slog"
+	"tgBookBot/internal/dto"
 
 	"gopkg.in/telebot.v4"
 )
@@ -20,13 +21,12 @@ func (b *Bot) handleStart(c telebot.Context) error {
 	}
 	if ok == nil {
 		b.log.Info("Creating new user", slog.Int64("telegram_id", telegram_id), slog.String("username", username))
-		id, err := b.service.CreateUser(ctx, telegram_id, username)
+		req := &dto.UserCreateRequest{TelegramID: telegram_id, Username: username}
+		err := b.service.CreateUser(ctx, req)
 		if err != nil {
-			return c.Send("Произошла ошибка. Пожалуйста, попробуйте снова позже.")
-		}
-		if id == 0 {
-			return c.Send("Произошла ошибка. Пожалуйста, попробуйте снова позже.")
+			return c.Send("Произошла ошибка при регистрации. Пожалуйста, попробуйте снова позже.")
 		}
 	}
+	b.log.Info("User already exists", slog.Int64("telegram_id", telegram_id), slog.String("username", username)) // delelte in future, just for health check
 	return c.Send("Привет! Я бот для отслеживания прогресса чтения книг. Я помогу тебе следить за тем, сколько страниц ты прочитал и когда ты закончил книгу. Чтобы начать, просто добавь книгу с помощью команды /addbook.")
 }

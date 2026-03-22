@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	model "tgBookBot/internal/domain/models"
+	"tgBookBot/internal/dto"
 	"tgBookBot/internal/storage"
 	"time"
 )
@@ -17,18 +18,22 @@ type Service struct {
 func New(log *slog.Logger, storage storage.Storage) *Service {
 	return &Service{log: log, storage: storage}
 }
-func (s *Service) CreateUser(ctx context.Context, telegramID int64, username string) (int, error) {
-	// TODO : request validation
+func (s *Service) CreateUser(ctx context.Context, req *dto.UserCreateRequest) error {
 	const op = "Service.CreateUser"
-	l := s.log.With(slog.String("op", op), slog.Int64("telegram_id", telegramID))
+	l := s.log.With(slog.String("op", op), slog.Int64("telegram_id", req.TelegramID))
 
-	id, err := s.storage.CreateUser(ctx, telegramID, username)
+	user := &model.User{
+		TelegramID: req.TelegramID,
+		Username:   req.Username,
+	}
+
+	id, err := s.storage.CreateUser(ctx, user)
 	if err != nil {
 		l.Error("failed to create user", slog.Any("error", err))
-		return 0, fmt.Errorf("%s:%w", op, err)
+		return fmt.Errorf("%s:%w", op, err)
 	}
 	l.Info("user created", slog.Int("id", id))
-	return id, nil
+	return nil
 }
 
 func (s *Service) GetUserByTelegramID(ctx context.Context, telegramID int64) (*model.User, error) {

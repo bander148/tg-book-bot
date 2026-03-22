@@ -11,6 +11,7 @@ type BookCreateRequest struct {
 	Author      string `json:"author" validate:"required,max=100"`
 	Title       string `json:"title" validate:"required,max=100"`
 	TelegramID  int64  `json:"telegram_id" validate:"required,gt=0"`
+	PagesRead   int64  `json:"pages_read" validate:"omitempty,gt=0"`
 }
 
 // BookUpdateRequest for updating book info
