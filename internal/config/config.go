@@ -48,7 +48,11 @@ func fetchConfigPath() string {
 	flag.Parse()
 
 	if res == "" {
-		res = os.Getenv("CONFIG_PATH")
+		if envPath := os.Getenv("CONFIG_PATH"); envPath != "" {
+			res = envPath
+		} else {
+			res = "config/local.yaml" // default path for local development
+		}
 	}
 
 	return res
