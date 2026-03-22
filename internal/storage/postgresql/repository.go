@@ -22,12 +22,12 @@ func NewRepository(client Client, log *slog.Logger) storage.Storage {
 // TODO : create specific errors for repository and handle them in service layer, for example ErrUserNotFound, ErrBookNotFound etc.
 
 // TODO : use dto for operations - userDTO
-func (p *pgRepository) CreateUser(ctx context.Context, telegramID int64, username string) (int, error) {
+func (p *pgRepository) CreateUser(ctx context.Context, user *model.User) (int, error) {
 	const op = "pdRepository.CreateUser"
 	var id int
-	l := p.log.With(slog.String("op", op), slog.Int64("tg_id", telegramID))
+	l := p.log.With(slog.String("op", op), slog.Int64("tg_id", user.TelegramID))
 	q := `INSERT INTO users (telegram_id,username) VALUES ($1,$2) RETURNING id`
-	if err := p.client.QueryRow(ctx, q, telegramID, username).Scan(&id); err != nil {
+	if err := p.client.QueryRow(ctx, q, user.TelegramID, user.Username).Scan(&id); err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok {
 			l.Error("can't save user", slog.Any("err", pgErr.Message), slog.Any("detail", pgErr.Detail), slog.Any("where", pgErr.Where), slog.Any("code", pgErr.Code), slog.Any("sqlstate", pgErr.SQLState()))
 			return 0, pgErr
@@ -35,6 +35,7 @@ func (p *pgRepository) CreateUser(ctx context.Context, telegramID int64, usernam
 
 		return 0, err
 	}
+	user.ID = int64(id)
 	l.Info("user created", slog.Int("id", id))
 	return id, nil
 }
@@ -53,8 +54,19 @@ func (p *pgRepository) GetUserByTelegramID(ctx context.Context, telegramID int64
 	return &user, nil
 
 }
-func (p *pgRepository) CreateBook(ctx context.Context, book *model.Book) error {
-	panic("implement me ")
+func (p *pgRepository) CreateBook(ctx context.Context, book *model.Book) (int, error) {
+	const op = "pgRepository.CreateBook"
+	l := p.log.With(slog.String("op", op), slog.Int64("user_id", book.UserID), slog.String("title", book.Title))
+	q := `INSERT INTO books(pages,description,author,title,user_id,start_date,end_date,pages_read) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id`
+	if err := p.client.QueryRow(ctx, q, book.Pages, book.Description, book.Author, book.Title, book.UserID, book.StartDate, book.EndDate, book.PagesRead).Scan(&book.ID); err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			l.Error("can't save book", slog.Any("err", pgErr.Message), slog.Any("detail", pgErr.Detail), slog.Any("where", pgErr.Where), slog.Any("code", pgErr.Code), slog.Any("sqlstate", pgErr.SQLState()))
+			return 0, pgErr
+		}
+		return 0, err
+	}
+	return int(book.ID), nil
+
 }
 func (p *pgRepository) GetUserBooks(ctx context.Context, userID int64) ([]model.Book, error) {
 	const op = "pdRepository.GetUserBooks"

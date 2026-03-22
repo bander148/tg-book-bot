@@ -10,11 +10,11 @@ import (
 type Storage interface {
 
 	// User operations
-	CreateUser(ctx context.Context, telegramID int64, username string) (int, error)
+	CreateUser(ctx context.Context, user *model.User) (int, error)
 	GetUserByTelegramID(ctx context.Context, telegramID int64) (*model.User, error)
 
 	// Operations with books
-	CreateBook(ctx context.Context, book *model.Book) error
+	CreateBook(ctx context.Context, book *model.Book) (int, error)
 	GetUserBooks(ctx context.Context, userID int64) ([]model.Book, error)
 	UpdateBookProgress(ctx context.Context, bookID int64, pagesRead int64) error
 	MarkBookFinished(ctx context.Context, bookID int64, date time.Time) error
