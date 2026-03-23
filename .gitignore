@@ -2,3 +2,14 @@ config/local.yaml
 *.exe
 *.yaml
 *.db
+*.txt  
+*.log
+*.sql  
+*.csv
+*.json
+*.xml
+*.bin 
+*.tmp
+*.cache
+*.bak
+*.swp   

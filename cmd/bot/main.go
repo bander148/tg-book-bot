@@ -36,7 +36,6 @@ func main() {
 	logger.Info("Service created successfully")
 
 	b := bot.New(&cfg.TGBotConfig, service, logger)
-	logger.Info("Bot created successfully")
 	//b.engine.Handle("/health", func(c telebot.Context) error {
 	//return c.Send("OK")
 	//})

@@ -200,3 +200,5 @@ func (p *pgRepository) GetReadingSessionsForPeriod(ctx context.Context, from tim
 	return sessions, nil
 
 }
+
+// TODO : add new methods for operations with reading sessions and books.
