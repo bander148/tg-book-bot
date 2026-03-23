@@ -16,17 +16,12 @@ type Storage interface {
 	// Operations with books
 	CreateBook(ctx context.Context, book *model.Book) (int, error)
 	GetUserBooks(ctx context.Context, userID int64) ([]model.Book, error)
-	UpdateBookProgress(ctx context.Context, bookID int64, pagesRead int64) error
-	MarkBookFinished(ctx context.Context, bookID int64, date time.Time) error
+	UpdateBookProgress(ctx context.Context, book *model.Book) (*model.Book, error)
+	MarkBookFinished(ctx context.Context, book *model.Book) (*model.Book, error)
 	DeleteBook(ctx context.Context, bookID int64) error
 	GetBookByID(ctx context.Context, bookID int64) (*model.Book, error)
 
 	// Operations with ReadingSession
 	AddReadingSession(ctx context.Context, session *model.ReadingSession) error
-	GetReadingSessionsForPeriod(
-		ctx context.Context,
-		userID int64,
-		from time.Time,
-		to time.Time,
-	) ([]*model.ReadingSession, error)
+	GetReadingSessionsForPeriod(ctx context.Context, from time.Time, to time.Time, userID int64) ([]model.ReadingSession, error)
 }
