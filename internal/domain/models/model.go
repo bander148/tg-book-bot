@@ -11,7 +11,7 @@ type Book struct {
 	Description string
 	Author      string
 	Title       string
-	StartDate   time.Time
+	StartDate   *time.Time
 	EndDate     *time.Time
 	PagesRead   int64
 	CreatedAt   time.Time

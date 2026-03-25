@@ -52,8 +52,35 @@ func (s *Service) GetUserByTelegramID(ctx context.Context, telegramID int64) (*m
 	return userData, nil
 }
 
-func (s *Service) CreateBook(ctx context.Context, book *model.Book) error {
-	panic("implement me")
+func (s *Service) CreateBook(ctx context.Context, book *dto.BookCreateRequest) error {
+	const op = "Service.CreateBook"
+	l := s.log.With(slog.String("op", op), slog.Int64("user_id", book.TelegramID))
+	userID, err := s.storage.GetUserIDByTelegramID(ctx, book.TelegramID)
+	if err != nil {
+		l.Error("Failed to get user ID", slog.Any("err", err))
+		return fmt.Errorf("%s:%w", op, err)
+	}
+	bookModel := &model.Book{
+		Pages:       book.Pages,
+		Description: book.Description,
+		Author:      book.Author,
+		Title:       book.Title,
+		UserID:      userID,
+		PagesRead:   book.PagesRead,
+		StartDate:   nil,
+		EndDate:     nil,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	id, err := s.storage.CreateBook(ctx, bookModel)
+	if err != nil {
+		l.Error("failed to create book", slog.Any("error", err))
+		return fmt.Errorf("%s:%w", op, err)
+	}
+	l.Info("book created", slog.Int("id", id))
+	return nil
+
 }
 
 func (s *Service) GetUserBooks(ctx context.Context, userID int64) ([]model.Book, error) {

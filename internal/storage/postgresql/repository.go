@@ -38,6 +38,9 @@ func (p *pgRepository) CreateUser(ctx context.Context, user *model.User) (int, e
 	l.Info("user created", slog.Int("id", id))
 	return id, nil
 }
+func (p *pgRepository) GetUserIDByTelegramID(ctx context.Context, telegramID int64) (int64, error) {
+	panic("implement me")
+}
 func (p *pgRepository) GetUserByTelegramID(ctx context.Context, telegramID int64) (*model.User, error) {
 	const op = "pdRepository.GetUserByTelegramID"
 	l := p.log.With(slog.String("op", op), slog.Int64("telegramID", telegramID))

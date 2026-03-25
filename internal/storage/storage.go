@@ -12,6 +12,7 @@ type Storage interface {
 	// User operations
 	CreateUser(ctx context.Context, user *model.User) (int, error)
 	GetUserByTelegramID(ctx context.Context, telegramID int64) (*model.User, error)
+	GetUserIDByTelegramID(ctx context.Context, telegramID int64) (int64, error)
 
 	// Operations with books
 	CreateBook(ctx context.Context, book *model.Book) (int, error)
