@@ -30,6 +30,18 @@ type BookUpdateProgressRequest struct {
 	PagesRead  int64 `json:"pages_read" validate:"required,gt=0"`
 	TelegramID int64 `json:"telegram_id" validate:"required,gt=0"`
 }
+type BookUpdateProgressResponse struct {
+	ID          int64      `json:"id" validate:"required,gt=0"`
+	Pages       int64      `json:"pages" validate:"required,gt=0"`
+	Description string     `json:"description" validate:"omitempty,max=2000"`
+	Author      string     `json:"author" validate:"omitempty,max=100"`
+	Title       string     `json:"title" validate:"omitempty,max=100"`
+	StartDate   *time.Time `json:"start_date" validate:"omitempty"`
+	EndDate     *time.Time `json:"end_date,omitempty" validate:"omitempty"`
+	PagesRead   int64      `json:"pages_read" validate:"required,gt=0"`
+	CreatedAt   time.Time  `json:"created_at" validate:"required"`
+	UpdatedAt   time.Time  `json:"updated_at" validate:"required"`
+}
 
 // BookFinishRequest for marking book as finished
 type BookFinishRequest struct {

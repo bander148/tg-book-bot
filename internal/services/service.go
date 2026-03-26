@@ -54,6 +54,7 @@ func (s *Service) GetUserByTelegramID(ctx context.Context, telegramID int64) (*m
 
 func (s *Service) CreateBook(ctx context.Context, book *dto.BookCreateRequest) error {
 	const op = "Service.CreateBook"
+	// TODO : request validation
 	l := s.log.With(slog.String("op", op), slog.Int64("user_id", book.TelegramID))
 	userID, err := s.storage.GetUserIDByTelegramID(ctx, book.TelegramID)
 	if err != nil {
@@ -86,6 +87,7 @@ func (s *Service) CreateBook(ctx context.Context, book *dto.BookCreateRequest) e
 func (s *Service) GetUserBooks(ctx context.Context, userID int64) ([]model.Book, error) {
 	const op = "Service.GetUserBook"
 	l := s.log.With(slog.String("op", op), slog.Int64("user_id", userID))
+	// TODO : request validation
 
 	booksData, err := s.storage.GetUserBooks(ctx, userID)
 	if err != nil {
@@ -97,8 +99,40 @@ func (s *Service) GetUserBooks(ctx context.Context, userID int64) ([]model.Book,
 	return booksData, nil
 }
 
-func (s *Service) UpdateBookProgress(ctx context.Context, bookID int64, pagesRead int64) error {
-	panic("implement me")
+func (s *Service) UpdateBookProgress(ctx context.Context, book *dto.BookUpdateProgressRequest) (*dto.BookUpdateProgressResponse, error) {
+	const op = "Service.UpdateBookProgress"
+	l := s.log.With(slog.String("op", op), slog.Int64("book_id", book.BookID), slog.Int64("telegram_id", book.TelegramID))
+	if err := s.CheckAccessToBook(ctx, book.BookID, book.TelegramID); err != nil {
+		l.Error("Access to book denied", slog.Any("err", err))
+		return nil, fmt.Errorf("%s:%w", op, err)
+	}
+
+	// TODO : request validation
+	bookModel := &model.Book{
+		ID:        book.BookID,
+		PagesRead: book.PagesRead,
+		UpdatedAt: time.Now(),
+	}
+	bookResponse, err := s.storage.UpdateBookProgress(ctx, bookModel)
+	if err != nil {
+		l.Error("Failed to update book progress", slog.Any("err", err))
+		return nil, fmt.Errorf("%s:%w", op, err)
+	}
+	l.Info("book progress updated", slog.Int64("book_id", book.BookID))
+
+	return &dto.BookUpdateProgressResponse{
+		ID:          bookResponse.ID,
+		Pages:       bookResponse.Pages,
+		Description: bookResponse.Description,
+		Author:      bookResponse.Author,
+		Title:       bookResponse.Title,
+		PagesRead:   bookResponse.PagesRead,
+		StartDate:   bookResponse.StartDate,
+		EndDate:     bookResponse.EndDate,
+		CreatedAt:   bookResponse.CreatedAt,
+		UpdatedAt:   bookResponse.UpdatedAt,
+	}, nil
+
 }
 func (s *Service) MarkBookFinished(ctx context.Context, bookID int64, date time.Time) error {
 	panic("implement me")
@@ -114,4 +148,26 @@ func (s *Service) AddReadSession(ctx context.Context, session *model.ReadingSess
 }
 func (s *Service) GetReadingSessionForPeriod(ctx context.Context, userID int64, from time.Time, to time.Time) ([]*model.ReadingSession, error) {
 	panic("implement me")
+}
+func (s *Service) CheckAccessToBook(ctx context.Context, bookID int64, telegramID int64) error {
+	const op = "Service.CheckAccessToBook"
+	l := s.log.With(slog.String("op", op), slog.Int64("book_id", bookID), slog.Int64("telegram_id", telegramID))
+
+	userID, err := s.storage.GetUserIDByTelegramID(ctx, telegramID)
+	if err != nil {
+		l.Error("Failed to get user ID", slog.Any("err", err))
+		return fmt.Errorf("%s:%w", op, err)
+	}
+
+	bookStorage, err := s.storage.GetBookByID(ctx, bookID)
+	if err != nil {
+		l.Error("Failed to get user ID", slog.Any("err", err))
+		return fmt.Errorf("%s:%w", op, err)
+	}
+
+	if bookStorage.UserID != userID {
+		l.Error("User ID from telegram does not match book owner ID", slog.Int64("book_user_id", bookStorage.UserID), slog.Int64("user_id", userID))
+		return fmt.Errorf("%s: %w", op, fmt.Errorf("user ID from telegram does not match book owner ID"))
+	}
+	return nil
 }
