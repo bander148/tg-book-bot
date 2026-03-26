@@ -30,21 +30,9 @@ type BookUpdateProgressRequest struct {
 	PagesRead  int64 `json:"pages_read" validate:"required,gt=0"`
 	TelegramID int64 `json:"telegram_id" validate:"required,gt=0"`
 }
-type BookUpdateProgressResponse struct {
-	ID          int64      `json:"id" validate:"required,gt=0"`
-	Pages       int64      `json:"pages" validate:"required,gt=0"`
-	Description string     `json:"description" validate:"omitempty,max=2000"`
-	Author      string     `json:"author" validate:"omitempty,max=100"`
-	Title       string     `json:"title" validate:"omitempty,max=100"`
-	StartDate   *time.Time `json:"start_date" validate:"omitempty"`
-	EndDate     *time.Time `json:"end_date,omitempty" validate:"omitempty"`
-	PagesRead   int64      `json:"pages_read" validate:"required,gt=0"`
-	CreatedAt   time.Time  `json:"created_at" validate:"required"`
-	UpdatedAt   time.Time  `json:"updated_at" validate:"required"`
-}
 
 // BookFinishRequest for marking book as finished
-type BookFinishRequest struct {
+type BookMarkFinishedRequest struct {
 	BookID     int64     `json:"book_id" validate:"required,gt=0"`
 	EndDate    time.Time `json:"date" validate:"required"`
 	TelegramID int64     `json:"telegram_id" validate:"required,gt=0"`
@@ -63,7 +51,7 @@ type BookResponse struct {
 	Description string     `json:"description"`
 	Author      string     `json:"author"`
 	Title       string     `json:"title"`
-	StartDate   time.Time  `json:"start_date"`
+	StartDate   *time.Time `json:"start_date"`
 	EndDate     *time.Time `json:"end_date,omitempty"`
 	PagesRead   int64      `json:"pages_read"`
 	CreatedAt   time.Time  `json:"created_at"`
@@ -78,9 +66,11 @@ type UserCreateRequest struct {
 
 // ReadingSessionRequest for creating new reading session
 type ReadingSessionRequest struct {
-	Pages      int64 `json:"pages" validate:"required,gt=0"`
-	BookID     int64 `json:"book_id" validate:"required,gt=0"`
-	TelegramID int64 `json:"telegram_id" validate:"required,gt=0"`
+	Pages      int64         `json:"pages" validate:"required,gt=0"`
+	BookID     int64         `json:"book_id" validate:"required,gt=0"`
+	TelegramID int64         `json:"telegram_id" validate:"required,gt=0"`
+	Date       time.Time     `json:"date" validate:"required"`
+	Duration   time.Duration `json:"duration" validate:"required,gt=0"`
 }
 
 // ReadingSessionResponse for returning reading session info
