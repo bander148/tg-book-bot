@@ -58,6 +58,7 @@ func CreateEngine(token string, poll time.Duration) *telebot.Bot {
 func (b *Bot) registerHandlers() {
 	// TODO: register handlers
 	b.engine.Handle("/start", b.handleStart)
+	b.engine.Handle("/addbook", b.handleAddBook)
 	// TODO : add handlers for other commands - /addbook, /mybooks, /deletebook etc.
 	// TODO : add handlers for callback buttons
 	//panic("implement me ")

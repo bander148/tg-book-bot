@@ -39,7 +39,18 @@ func (p *pgRepository) CreateUser(ctx context.Context, user *model.User) (int, e
 	return id, nil
 }
 func (p *pgRepository) GetUserIDByTelegramID(ctx context.Context, telegramID int64) (int64, error) {
-	panic("implement me")
+	const op = "pdRepository.GetUserIDByTelegramID"
+	l := p.log.With(slog.String("op", op), slog.Int64("telegramID", telegramID))
+	q := `SELECT id FROM users WHERE telegram_id = $1`
+	var id int64
+	if err := p.client.QueryRow(ctx, q, telegramID).Scan(&id); err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			l.Error("can't find user ID by telegram ID", slog.Any("err", pgErr.Message), slog.Any("deatil", pgErr.Detail), slog.Any("where", pgErr.Where), slog.Any("code", pgErr.Code), slog.Any("sqlstate", pgErr.SQLState()))
+			return 0, pgErr
+		}
+		return 0, err
+	}
+	return id, nil
 }
 func (p *pgRepository) GetUserByTelegramID(ctx context.Context, telegramID int64) (*model.User, error) {
 	const op = "pdRepository.GetUserByTelegramID"

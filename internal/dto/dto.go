@@ -7,11 +7,11 @@ import "time"
 // BookCreateRequest for creating new book
 type BookCreateRequest struct {
 	Pages       int64  `json:"pages" validate:"required,gt=0"`
-	Description string `json:"description" validate:"omitempty,max=2000"`
+	Description string `json:"description" validate:"omitempty,max=2000"` // delete
 	Author      string `json:"author" validate:"required,max=100"`
 	Title       string `json:"title" validate:"required,max=100"`
 	TelegramID  int64  `json:"telegram_id" validate:"required,gt=0"`
-	PagesRead   int64  `json:"pages_read" validate:"omitempty,gt=0"`
+	PagesRead   int64  `json:"pages_read" validate:"omitempty,gt=0"` // TODO: think about implemention
 }
 
 // BookUpdateRequest for updating book info
